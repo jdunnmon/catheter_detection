@@ -8,17 +8,23 @@ from PIL import Image
 import numpy as np
 from collections import OrderedDict
 from PIL import ImageFilter
+import pandas as pd
 
 class AlignedDatasetSRCNN(BaseDataset):
 	def initialize(self, opt):
 		self.opt = opt
 		self.root = opt.dataroot
-		self.dir_A = os.path.join(opt.dataroot, opt.phase)
-		self.dir_B = os.path.join(opt.dataroot, opt.phase+'annot')
+		if opt.use_annot:
+			self.dir_A = os.path.join(opt.dataroot, opt.split)
+			self.A_paths = sorted(make_dataset(self.dir_A, opt.split))
+			self.dir_B = os.path.join(opt.dataroot, opt.split+'annot')
+			self.B_paths = sorted(make_dataset(self.dir_B, opt.split))
 
-		self.A_paths = sorted(make_dataset(self.dir_A))
-		self.B_paths = sorted(make_dataset(self.dir_B))
-
+		else:
+			self.dir_A = os.path.join(opt.dataroot)
+			self.A_paths = make_dataset(self.dir_A, opt.split)
+			self.dir_B = self.dir_A
+			self.B_paths = make_dataset(self.dir_B, opt.split)
 
 		self.transform = get_transform(opt)
 
